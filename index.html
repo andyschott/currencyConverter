@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+<title>Currency Converter</title>
+
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+<script src="app.js"></script>
+
+<script>
+function calc() {
+	var currencyDropDown = $('#currency');
+	var selectedCurrency = currencyDropDown.val();
+	
+	if(selectedCurrency === '0') {
+	  doConversion('EUR');
+	}
+	else if(selectedCurrency === '1') {
+	  doConversion('CAD');
+	}
+}
+
+function doConversion(currency) {
+  var label = $('#label').val();
+  var sourceCurrency = $('#amount').val();
+
+  var feeRate = 30
+
+  $.ajax({
+    url: 'http://openexchangerates.org/api/latest.json',
+    jsonp: 'callback',
+    dataType: 'jsonp',
+    data: {
+      app_id: open_exchange_rates_app_id
+    },
+
+    success: function(response) {
+      var conversionRate = response.rates[currency];
+      var dollars = sourceCurrency / conversionRate;
+      dollars = Math.round(dollars * 100) / 100;
+
+      var fee = dollars / feeRate;
+      fee = Math.round(fee * 100) / 100;
+
+      var total = dollars + fee;
+
+      var msg = label +  " cost $" + dollars.toFixed(2) + ", with a fee of $" + fee.toFixed(2) + ", for a total of $" + total.toFixed(2) + ".";
+      console.log(msg);
+
+      var result = $('#results');
+      result.val(msg);
+      result.css('display', 'inline-block');
+      results.focus();
+      results.select();
+    }
+  });
+}
+</script>
+
+</head>
+
+<body>
+
+<form action="javascript:calc()">
+  <table border="0">
+  	<tr>
+  	  <td><label>Label</label></td>
+      <td><input type="text" id="label" /></td>
+  	</tr>
+
+  	<tr>
+  	  <td>
+  	    <select id="currency">
+	      <option value="0">Euros</option>
+          <option value="1">Canadian</option>
+	    </select>
+	  </td>
+      <td><input type="text" id="amount" /></td>
+	</tr>
+
+	<tr>
+	  <td><input type="submit" value="Calculate" /></td>
+   </tr>
+  </table>
+</form>
+
+<p>
+  <input type="text" readonly="readonly" id="results" style="display: none;" size="100" value="" />
+</p>
+
+</body>
+</html>
